@@ -28,14 +28,10 @@ def calcul_valeur(mdp, plan):
     B = np.zeros(K, )
 
     for s in plan:
-        action = plan.get(s)
-
-        transitions = mdp.modele_transition[(s, action)]
-
         B[s] = mdp.recompenses[s] * -1
         A[s, s] = -1
 
-        for t in transitions:
+        for t in mdp.modele_transition[(s, plan.get(s))]:
             A[s, t[0]] = mdp.escompte * t[1] + A[s, t[0]]
 
     Ainv = np.linalg.inv(A)
