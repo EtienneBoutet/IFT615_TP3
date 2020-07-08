@@ -86,7 +86,7 @@ class Correcteur:
 
         result = result[::-1]
 
-        # Calcul de la probabilité de p(mot_corrige, mot)
+        # Calcul de la probabilité de p(mot, mot_corrige)
         prob = self.p_init[self.letters2int[result[0]]] * self.p_observation[self.letters2int[mot[0]], self.letters2int[result[0]]]
 
         for j in range(1, len(mot)):
