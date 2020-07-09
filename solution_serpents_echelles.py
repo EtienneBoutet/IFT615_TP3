@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #####
-# VotreNom (VotreMatricule) .~= À MODIFIER =~.
+# Étienne Boutet - boue2327
 ###
 
 from pdb import set_trace as dbg  # Utiliser dbg() pour faire un break dans votre code.
@@ -34,10 +34,11 @@ def calcul_valeur(mdp, plan):
         for t in mdp.modele_transition[(s, plan.get(s))]:
             A[s, t[0]] = mdp.escompte * t[1] + A[s, t[0]]
 
+    mdp.assigner_plan(plan)
+    
     Ainv = np.linalg.inv(A)
 
     return np.dot(Ainv, B)
-
 
 #####
 # calcul_plan: Fonction qui retourne un plan à partir d'un tableau de valeurs.
@@ -49,8 +50,33 @@ def calcul_valeur(mdp, plan):
 # retour: Un plan (dictionnaire) qui maximise la valeur future espérée, en fonction du tableau "valeur".
 ### 
 def calcul_plan(mdp, valeur):
-    #TODO: .~= À COMPLÉTER =~.
-    return dict( [ (s,mdp.actions[s][0]) for s in mdp.etats] )
+
+    plan = {}
+
+    for e in mdp.etats:
+        if e == 19:
+            plan[e] = '1'
+        else:
+            candidats = []
+            for action in mdp.actions[e]:
+                if action is not mdp.plan[e]:
+                    val = 0
+                    for t in mdp.modele_transition[(e, action)]:
+                        val += t[1] * valeur[t[0]]
+                    
+                    candidats.append([mdp.recompenses[e] + (mdp.escompte * val), action])
+
+            if candidats[0][0] > candidats[1][0]:
+                candidat = candidats[0]
+            else:
+                candidat = candidats[1]
+
+            if candidat[0] > valeur[e]:
+                plan[e] = candidat[1]
+            else:
+                plan[e] = mdp.plan.get(e)
+
+    return plan
 
 #####
 # iteration_politiques: Algorithme d'itération par politiques, qui retourne le plan optimal et sa valeur.
@@ -62,9 +88,9 @@ def calcul_plan(mdp, valeur):
 def iteration_politiques(mdp, plan_prime):
     plan = None
 
-    while plan is not plan_prime:
+    while plan != plan_prime:
         plan = plan_prime
         valeur = calcul_valeur(mdp, plan)
         plan_prime = calcul_plan(mdp, valeur)
 
-    return plan, None
+    return plan_prime, valeur

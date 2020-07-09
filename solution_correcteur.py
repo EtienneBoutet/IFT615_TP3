@@ -2,7 +2,6 @@
 
 #####
 # Étienne Boutet - boue2327
-# Raphael Valois - valr2802
 ###
 
 from pdb import set_trace as dbg  # Utiliser dbg() pour faire un break dans votre code.
