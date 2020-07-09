@@ -37,7 +37,6 @@ def calcul_valeur(mdp, plan):
     mdp.assigner_plan(plan)
     
     Ainv = np.linalg.inv(A)
-
     return np.dot(Ainv, B)
 
 #####
@@ -50,31 +49,28 @@ def calcul_valeur(mdp, plan):
 # retour: Un plan (dictionnaire) qui maximise la valeur future espérée, en fonction du tableau "valeur".
 ### 
 def calcul_plan(mdp, valeur):
-
     plan = {}
 
     for e in mdp.etats:
-        if e == 19:
-            plan[e] = '1'
+        candidat = (-1, None) 
+
+        for action in mdp.actions[e]:
+            val = 0
+            for t in mdp.modele_transition[(e, action)]:
+                val += t[1] * valeur[t[0]]
+            
+            # Trouver l'action maximum
+            if val > candidat[0]:
+                candidat = (val, action)
+
+        # Comparer l'action maximum avec la valeur présente
+        if candidat[0] > valeur[e]:
+            plan[e] = candidat[1]
         else:
-            candidats = []
-            for action in mdp.actions[e]:
-                if action is not mdp.plan[e]:
-                    val = 0
-                    for t in mdp.modele_transition[(e, action)]:
-                        val += t[1] * valeur[t[0]]
-                    
-                    candidats.append([mdp.recompenses[e] + (mdp.escompte * val), action])
+            plan[e] = mdp.plan.get(e)
 
-            if candidats[0][0] > candidats[1][0]:
-                candidat = candidats[0]
-            else:
-                candidat = candidats[1]
-
-            if candidat[0] > valeur[e]:
-                plan[e] = candidat[1]
-            else:
-                plan[e] = mdp.plan.get(e)
+    # Dernier élément du plan est toujours '1'.
+    plan[mdp.etats[-1]] = '1'
 
     return plan
 
